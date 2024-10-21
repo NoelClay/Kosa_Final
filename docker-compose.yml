@@ -1,0 +1,51 @@
+version: '3.3'
+
+services:
+
+  redis:
+    container_name: ct_redis
+    image: redis:latest
+
+  dms:
+    container_name: ct_dms
+    image: dmsimg
+    build:
+      context: ./DataModelManagementServer
+      dockerfile: Dockerfile
+    volumes:
+      - ./app:/usr/src/app
+    ports:
+      - "80:8081"
+
+  std:
+    container_name: ct_std
+    image: stdimg
+    build:
+      context: ./StandardDataServer
+      dockerfile: Dockerfile
+    volumes:
+      - ./app:/usr/src/app
+    ports:
+      - "8082:8082"
+
+  db:
+    image: postgres:15.6
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: meta_adm
+      POSTGRES_PASSWORD_FILE: ./run/secrets/db_password
+      POSTGRES_DB: meta_db
+      TZ: Asia/Seoul
+    volumes:
+      - ./data/meta_be/data:/var/lib/postgresql/data
+    secrets:
+      - db_password
+    ports:
+      - "5432:5432"
+    expose:
+      - "5432"
+
+secrets:
+  db_password:
+    file: ./run/secrets/db_password
