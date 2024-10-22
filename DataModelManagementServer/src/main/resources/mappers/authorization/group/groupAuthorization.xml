@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dms.datamodelmanagementserver.authorization.group.mapper.GroupAuthorizationMapper">
+
+<resultMap type="com.dms.datamodelmanagementserver.authorization.group.dto.GroupDTO" id="groupMap">
+	<result property="groupId" column="grp_id"/>
+    <result property="groupName" column="grp_nm"/>
+    <result property="groupDesc" column="grp_desc"/>
+</resultMap>
+
+<resultMap type="com.dms.datamodelmanagementserver.authorization.group.dto.GroupAuthorizationBySubjAreaIdDTO" id="groupAuthorizationByStdjAreaIdMap">
+	<result property="subjAreaId" column="subj_area_id"/>
+    <result property="subjAreaName" column="subj_area_nm"/>
+    <result property="groupId" column="grp_id"/>
+    <result property="groupName" column="grp_nm"/>
+    <result property="authTpCd" column="auth_tp_cd"/>
+</resultMap>
+
+<resultMap type="com.dms.datamodelmanagementserver.authorization.group.dto.GroupMemberDTO" id="GroupMemberMap">
+	<result property="groupName" column="grp_nm"/>
+	<result property="usrId" column="usr_id"/>
+    <result property="usrName" column="usr_nm"/>
+</resultMap>
+
+<resultMap type="com.dms.datamodelmanagementserver.authorization.individual.dto.IndividualUserDTO" id="individualUserMap">
+	<result property="usrId" column="usr_id"/>
+    <result property="usrName" column="usr_nm"/>
+    <result property="usrPassword" column="usr_pwd"/>
+    <result property="useYn" column="use_flg"/>
+    <result property="usrEmail" column="usr_eml"/>
+    <result property="groupId" column="grp_id"/>
+    <result property="groupName" column="grp_nm"/>
+</resultMap>
+
+	<!-- 그룹 신규 등록 -->
+	<insert id="insertGroup">
+    	INSERT INTO dms_grp (
+    		grp_id,
+    		grp_nm,
+    		grp_desc
+    	)
+    	VALUES (
+    	#{groupId},
+    	#{groupName},
+    	#{groupDesc}
+    	)
+    </insert>
+    
+    <!-- 신규 권한 추가(N개) -->
+    <insert id="insertGroupAuth">
+	    <foreach collection="list" item="groupAuth" separator=";">
+		    INSERT INTO dms_grp_auth (
+	    		subj_area_id,
+	    		grp_id,
+	    		auth_tp_cd
+	    	)
+	    	VALUES (
+	    	#{groupAuth.subjAreaId},
+	    	#{groupAuth.groupId},
+	    	#{groupAuth.authTpCd}
+	    	)
+	    </foreach>
+    </insert>
+
+	<!-- 전체 그룹 조회 -->
+    <select id="getAllGroupList" resultMap="groupMap">
+        SELECT * 
+		FROM dms_grp
+		ORDER BY grp_nm
+    </select>
+
+    <select id="findGroupByGroupId" resultMap="groupMap">
+		SELECT *
+		FROM dms_grp
+		WHERE grp_id = #{groupId}
+    </select>
+    
+    <!-- 특정 그룹의 전체 프로젝트별 권한 조회 -->
+    <select id="findGroupAuthorizationByStdjAreaId" resultMap="groupAuthorizationByStdjAreaIdMap">
+		SELECT * 
+		FROM   subj_area sa 
+		       LEFT JOIN (SELECT * 
+		                  FROM   dms_grp_auth 
+		                  WHERE  grp_id = #{groupId}) dga 
+		              ON sa.subj_area_id = dga.subj_area_id
+    </select>
+    
+    <!-- 특정 프로젝트에 특정 그룹의 권한 추가 -->
+    <insert id="insertGroupAuthOneByOne">
+	    INSERT INTO dms_grp_auth (
+    		subj_area_id,
+    		grp_id,
+    		auth_tp_cd
+    	)
+    	VALUES (
+    	#{subjAreaId},
+    	#{groupId},
+    	#{authTpCd}
+    	)
+    </insert>
+    
+    <!-- 특정 사용자를 특정 그룹에 추가 -->
+    <insert id="insertIndividualToGroup">
+	    INSERT INTO dms_usr_grp (
+    		grp_id,
+    		usr_id
+    	)
+    	VALUES (
+    	#{targetGroupId},
+    	#{targetUserId}
+    	)
+    </insert>
+    
+    <!-- 특정 그룹의 사용자 목록 -->
+    <select id="findAllMemberByGroupId" resultMap="GroupMemberMap">
+		SELECT dg.grp_nm, dug.usr_id, du.usr_nm  
+		FROM dms_usr_grp dug 
+		LEFT JOIN dms_user du ON dug.usr_id = du.usr_id 
+		LEFT JOIN dms_grp dg ON dug.grp_id = dg.grp_id 
+		WHERE dug.grp_id = #{groupId};
+    </select>
+    
+    <!-- 특정 그룹의 특정 프로젝트 권한 조회 -->
+    <select id="findAuthByGroupIdAndSubjAreaId">
+        SELECT auth_tp_cd
+		FROM dms_grp_auth
+		WHERE subj_area_id = #{subjAreaId}
+		AND grp_id = #{groupId}
+    </select>
+    
+    <!-- 특정 그룹의 권한이 부여된 프로젝트 조회 -->
+    <select id="findSubjAreaIdByGroupId" resultMap="groupAuthorizationByStdjAreaIdMap">
+        SELECT *
+		FROM dms_grp_auth
+		WHERE grp_id = #{groupId}
+    </select>
+    
+    <!-- 특정 그룹의 특정 프로젝트 권한 수정 -->
+	<update id="updateAuthByGroupIdAndSubjAreaId">
+	    UPDATE dms_grp_auth
+	    SET auth_tp_cd = #{authTpCd}
+	    WHERE grp_id = #{groupId} 
+	    AND subj_area_id = #{subjAreaId}
+	</update>
+	
+	<!-- 그룹ID 중복확인 -->
+	<select id="validateGroupId">
+        SELECT count(*)
+		FROM dms_grp
+		WHERE grp_id = #{groupId}
+    </select>
+	
+	<!-- 그룹명 중복확인 -->
+	<select id="validateGroupName">
+        SELECT count(*)
+		FROM dms_grp
+		WHERE grp_nm = #{groupName}
+    </select>
+    
+    <!-- 사용자 검색 -->
+    <select id="searchIndividualByName" resultMap="individualUserMap">
+    	SELECT *
+    	FROM dms_user du 
+		LEFT JOIN dms_usr_grp dug ON du.usr_id = dug.usr_id AND dug.grp_id = #{targetGroupId}
+		LEFT JOIN dms_grp dg ON dug.grp_id = dg.grp_id 
+		WHERE du.usr_nm LIKE '%' || #{targetUserName} || '%'
+		AND du.use_flg = 'Y'
+		ORDER BY grp_nm
+    </select>
+    
+    <!-- 그룹 검색 -->
+    <select id="findGroupBySearchCondition" resultMap="groupMap">
+        SELECT *
+		FROM dms_grp dg 
+		WHERE 
+        <if test="searchCondition == 'ID'">
+            dg.grp_id like '%' || #{searchValue} || '%'
+        </if>
+        <if test="searchCondition == 'NAME'">
+            dg.grp_nm like '%' || #{searchValue} || '%'
+        </if>
+        ORDER BY grp_id ASC
+    </select>
+    
+    <!-- 그룹 정보 수정 -->
+    <update id="updateGroup">
+    UPDATE dms_grp
+    <set>
+        <if test="groupName != null and groupName != ''">
+            grp_nm = #{groupName},
+        </if>
+        <if test="groupDesc != null and groupDesc != ''">
+            grp_desc = #{groupDesc}
+        </if>
+    </set>
+    WHERE grp_id = #{groupId} 
+	</update>
+
+    
+    <!-- 특정 그룹의 특정 프로젝트에 대한 권한 삭제 -->
+    <delete id="deleteGroupAuthBySubjAreaId">
+        DELETE FROM dms_grp_auth
+        WHERE grp_id = #{groupId}
+        AND subj_area_id = #{subjAreaId}
+    </delete>
+    
+    <!-- 특정 그룹의 특정 사용자 삭제 -->
+    <delete id="deleteIndividualFromGroup">
+        DELETE FROM dms_usr_grp
+        WHERE usr_id = #{targetUserId}
+        AND  grp_id = #{targetGroupId}
+    </delete>
+
+</mapper>

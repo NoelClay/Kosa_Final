@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dms.datamodelmanagementserver.dashboard.mapper.ChartMapper">
+    <resultMap id="chartResultMap" type="com.dms.datamodelmanagementserver.dashboard.dto.ChartDTO">
+        <result column="ELEMENT" property="element"/>
+        <result column="COUNT" property="count"/>
+
+    </resultMap>
+    <select id="chartDTOList" resultMap="chartResultMap">
+        <![CDATA[
+        SELECT *
+		FROM (
+		    SELECT
+		        sub.DIC_LOG_NM AS ELEMENT,
+		        COUNT(sub.DIC_LOG_NM) AS COUNT
+		    FROM
+		        std_dict main
+		    JOIN
+		        std_dict sub ON sub.subj_area_ID = main.subj_area_ID
+		        AND sub.dic_clss_cd = 'word'
+		        AND main.DIC_LOG_NM LIKE '%' || sub.DIC_LOG_NM || '%'
+		    WHERE
+		        main.subj_area_ID = #{standardAreaId}
+		        AND main.dic_clss_cd = 'term'
+		    GROUP BY
+		        sub.DIC_LOG_NM
+		
+		    UNION
+		
+		    SELECT
+		        'domain' AS ELEMENT,
+		        COUNT(dmn_nm) AS COUNT
+		    FROM
+		        STD_DOM
+		    WHERE
+		        subj_area_ID = #{standardAreaId}
+		
+		    UNION
+		
+		    SELECT
+		        dic_clss_cd AS ELEMENT,
+		        COUNT(*) AS COUNT
+		    FROM
+		        std_dict
+		    WHERE
+		        subj_area_ID = #{standardAreaId}
+		    GROUP BY
+		        dic_clss_cd
+		) AS result
+		ORDER BY count desc
+		LIMIT 11
+		;
+
+        ]]>
+    </select>
+
+</mapper>

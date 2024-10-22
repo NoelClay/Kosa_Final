@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dms.datamodelmanagementserver.member.mapper.MemberLoginMapper">
+
+    <resultMap type="com.dms.datamodelmanagementserver.member.dto.MemberDTO" id="map">
+        <id column="usr_id" property="id"/>
+        <result column="usr_nm" property="name"/>
+        <result column="usr_pwd" property="password"/>
+        <result column="use_flg" property="useYn"/>
+    </resultMap>
+
+    <select id="authenticateMember" parameterType="com.dms.datamodelmanagementserver.member.dto.MemberDTO" resultMap="map">
+        select *
+        from dms_user
+        where usr_id = #{memberDTO.id} 
+        and usr_pwd = encode(encrypt(convert_to(#{memberDTO.password},'utf8'),'ENC_KEY','aes'),'hex')
+        </select>
+    
+    <select id="authorizedMember" parameterType="com.dms.datamodelmanagementserver.member.dto.MemberDTO">
+	    select count(*)
+	    from dms_usr_auth
+	    where usr_id = #{memberDTO.id}
+    </select>
+ 
+    <!-- 프로젝트별 개인 사용자 권한 조회(그룹별 권한 과 개인별 권한 중 더 과중한 권한으로 부여됨) (원래 individualAuthorization 에 있었음 수정해야 함!!!!)-->
+    <select id="findIndividualIdAndSubjAreaIdTest">
+		SELECT max(auth_tp_cd)
+		FROM (
+			SELECT subj_area_id, auth_tp_cd
+			FROM dms_usr_auth
+			WHERE usr_id = #{usrId}
+			UNION
+			SELECT subj_area_id, auth_tp_cd
+			FROM dms_grp_auth
+			WHERE grp_id IN  
+				(SELECT grp_id
+				 FROM dms_usr_grp
+				 WHERE usr_id = #{usrId})
+			) as auth
+		WHERE subj_area_id = #{subjAreaId}
+		GROUP BY subj_area_id;
+    </select>
+ 
+    
+    <!-- 프로젝트별 개인 사용자 권한 조회 (원래 individualAuthorization 에 있었음 수정해야 함!!!!)-->
+    <!--<select id="findIndividualIdAndSubjAreaIdTest">
+        SELECT auth_tp_cd
+		FROM dms_usr_auth
+		WHERE subj_area_id = #{subjAreaId}
+		AND usr_id = #{usrId}
+    </select>-->
+</mapper>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dms.datamodelmanagementserver.single.domain.mapper.DomainMapper">
+
+    <select id="getDomainInfo" resultType="com.dms.datamodelmanagementserver.single.domain.dto.DomainDTO">
+        SELECT dmn_id as domId
+        , subj_area_ID as selectStandardArea
+        , KEY_dmn_nm as keyDomName
+        , dmn_nm as domName
+        , dmn_desc as domDescription
+        , dmn_grp_id as domGroupId
+        , dmn_tp_cd as domTypeCode
+        , dat_tp_cd as dataTypeCode
+        , dat_len as dataLen
+        , dat_scl_len as dataScale
+        , dat_min_val as dataMin
+        , dat_max_val as dataMax
+        FROM STD_DOM
+        WHERE dmn_id = #{domId}
+    </select>
+
+</mapper>

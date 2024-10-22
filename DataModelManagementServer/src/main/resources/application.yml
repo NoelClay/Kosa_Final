@@ -1,0 +1,61 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+#    url: jdbc:postgresql://34.64.236.95:5432/meta_db
+    #원본 url: jdbc:postgresql://10.52.208.5:5432/meta_db
+    url: jdbc:postgresql://db:5432/meta_db
+    username: meta_adm
+    password: QweR12#$34
+  
+  data:
+    redis:
+#      host: localhost
+      host: ct_redis
+      port: 6379
+#      password: tysredis!23
+
+
+  # VO location
+  # mybatis.type-aliases-package: com.example.web.vo
+  mvc:
+    view:
+      prefix: /WEB-INF/views/
+      suffix: .jsp
+      
+      
+  cloud:
+    config:
+      enabled: false
+    discovery:
+      enabled: false    
+
+# XML location
+mybatis:
+  mapper-locations: classpath:mappers/**/*.xml
+
+  http:
+    multipart:
+      maxFileSize: 10MB
+      maxRequestSize: 10MB
+
+#management:
+#  endpoints:
+#    web:
+#      exposure:
+#        include: "*"
+#  endpoint:
+#    health:
+#      show-details: always
+#    gateway:
+#      enabled: true
+
+
+# Port
+server:
+  port: 8081
+  
+  tomcat:
+    connection-timeout: -1
+  
+
+

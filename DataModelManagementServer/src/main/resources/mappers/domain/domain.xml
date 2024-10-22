@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dms.datamodelmanagementserver.single.domain.mapper.DomainMapper">
+
+    <insert id="insertDomain" parameterType="com.dms.datamodelmanagementserver.single.domain.dto.DomainDTO">
+        INSERT INTO STD_DOM (
+          dmn_id
+        , subj_area_ID
+        , KEY_dmn_nm
+        , dmn_nm
+        , dmn_desc
+        , dmn_tp_cd
+        , dmn_grp_id
+        , dat_tp_cd
+        , dat_len
+        , dat_scl_len
+        , dat_min_val
+        , dat_max_val
+        ) VALUES (
+          #{domId, jdbcType=VARCHAR}
+        , #{selectStandardArea, jdbcType=VARCHAR}
+        , #{keyDomName, jdbcType=VARCHAR}
+        , #{domName, jdbcType=VARCHAR}
+        , #{domDescription, jdbcType=VARCHAR}
+        , #{domTypeCode, jdbcType=VARCHAR}
+        , #{domGroupId, jdbcType=VARCHAR}
+        , #{dataTypeCode, jdbcType=VARCHAR}
+        , #{dataLen, jdbcType=INTEGER}
+        , #{dataScale, jdbcType=INTEGER}
+        , #{dataMin, jdbcType=INTEGER}
+        , #{dataMax, jdbcType=INTEGER}
+        )
+    </insert>
+
+    <select id="getDomainGroup" parameterType="String" resultType="com.dms.datamodelmanagementserver.single.domain.dto.DomainGroupDTO">
+        SELECT dmn_grp_id  as domGrpId
+             , subj_area_ID as stdAreaId
+             , dmn_grp_NM  as domGrpNm
+             , dmn_grp_DESC as domGrpDesc
+             , AVAL_ST_DT  as avalStDt
+             , AVAL_END_DT  as avalEndDt
+        FROM STD_DOM_GRP
+        WHERE subj_area_ID = #{stdAreaId}
+    </select>
+
+    <select id="isDuplicateDomain" resultType="boolean">
+        SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END AS isDuplicate
+        FROM STD_DOM
+        WHERE dmn_nm = #{domName, jdbcType=VARCHAR}
+        AND (dmn_grp_id IS NULL OR dmn_grp_id = '')
+        AND subj_area_ID = #{selectStandardArea, jdbcType=VARCHAR}
+    </select>
+    
+    <select id="isDuplicateDomainInSameDomGroup" resultType="boolean">
+        SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END AS isDuplicate
+        FROM STD_DOM
+        WHERE dmn_nm = #{domName, jdbcType=VARCHAR}
+        AND dmn_grp_id = #{domGroupId, jdbcType=VARCHAR}
+        AND subj_area_ID = #{selectStandardArea, jdbcType=VARCHAR}
+    </select>
+
+	<!-- 도메인 그룹 등록 기능 구현 시 필요 -->
+    <select id="isDuplicateDomainGroup" resultType="boolean">
+        SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END AS isDuplicate
+        FROM STD_DOM_GRP
+        WHERE dmn_grp_NM = #{domGrpName, jdbcType=VARCHAR}
+    </select>
+
+    <delete id="deleteDomain" parameterType="com.dms.datamodelmanagementserver.single.domain.dto.DomainDTO">
+        DELETE FROM STD_DOM
+        WHERE dmn_id = #{domId}
+    </delete>
+
+</mapper>
