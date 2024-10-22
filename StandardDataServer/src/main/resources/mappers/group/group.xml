@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dms.standarddataserver.group.mapper.GroupMapper">
+
+    <resultMap type="com.dms.standarddataserver.member.dto.MemberDTO" id="memberMap">
+        <id column="usr_id" property="id"/>
+        <result column="usr_pwd" property="password"/>
+        <result column="usr_nm" property="name"/>
+    </resultMap>
+
+    <select id="findAllGroupUsers" resultMap="memberMap">
+      SELECT * 
+      FROM dms_grp_auth dga
+      INNER JOIN dms_usr_grp dug
+      ON dga.grp_id = dug.grp_id  
+      WHERE dga.grp_id = #{groupId}
+      AND dga.subj_area_id = #{subjAreaId};
+    </select>
+</mapper>

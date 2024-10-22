@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dms.standarddataserver.standardData.mapper.StandardDataSearchMapper">
+    <resultMap id="selectDomain" type="com.dms.standarddataserver.standardData.dto.StandardDomainDTO">
+        <id property="domId" column="dmn_id"/>
+        <result property="stdAreaId" column="subj_area_ID"/>
+        <result property="keyDomNm" column="key_dmn_nm"/>
+        <result property="domNm" column="dmn_nm"/>
+        <result property="domDesc" column="dmn_desc"/>
+        <result property="domTypeCd" column="dmn_tp_cd"/>
+        <result property="domGrpId" column="dmn_grp_id"/>
+        <result property="dataTypeCd" column="dat_tp_cd"/>
+        <result property="dataLen" column="dat_len"/>
+        <result property="dataScale" column="dat_scl_len" />
+        <result property="dataMin" column="dat_min_val"/>
+        <result property="dataMax" column="dat_max_val"/>
+        <result property="avalStDt" column="AVAL_ST_DT"/>
+        <result property="avalEndDt" column="AVAL_END_DT"/>
+    </resultMap>
+
+    <select id="searchStandardDomainDTOByDomainId" parameterType="string" resultType="com.dms.standarddataserver.standardData.dto.StandardDomainDTO">
+        SELECT dmn_id as domId
+        , subj_area_ID as stdAreaId
+        , key_dmn_nm as keyDomNm
+        , dmn_nm as domNm
+        , dmn_desc as domDesc
+        , dmn_tp_cd as domTypeCd
+        , dmn_grp_id as domGrpId
+        , dat_tp_cd as dataTypeCd
+        , dat_len as dataLen
+        , dat_scl_len as dataScale
+        , dat_min_val as dataMin
+        , dat_max_val as dataMax
+        , AVAL_ST_DT as avalStDt
+        , AVAL_END_DT as avalEndDt
+        FROM STD_DOM
+        WHERE dmn_id = #{domId}
+    </select>
+    
+    <select id="searchStandardDomainDTOList" parameterType="string" resultType="com.dms.standarddataserver.standardData.dto.StandardDomainDTO">
+    	SELECT dmn_id as domId
+        , subj_area_ID as stdAreaId
+        , key_dmn_nm as keyDomNm
+        , dmn_nm as domNm
+        , dmn_desc as domDesc
+        , dmn_tp_cd as domTypeCd
+        , dmn_grp_id as domGrpId
+        , dat_tp_cd as dataTypeCd
+        , dat_len as dataLen
+        , dat_scl_len as dataScale
+        , dat_min_val as dataMin
+        , dat_max_val as dataMax
+        , AVAL_ST_DT as avalStDt
+        , AVAL_END_DT as avalEndDt
+		FROM std_dom
+        WHERE subj_area_ID = #{standardAreaId}
+    </select>
+
+    <select id="searchStandardDomainDTOListByDomainType" parameterType="string" resultType="com.dms.standarddataserver.standardData.dto.StandardDomainDTO">
+        SELECT dmn_id as domId
+        , subj_area_ID as stdAreaId
+        , key_dmn_nm as keyDomNm
+        , dmn_nm as domNm
+        , dmn_desc as domDesc
+        , dmn_tp_cd as domTypeCd
+        , dmn_grp_id as domGrpId
+        , dat_tp_cd as dataTypeCd
+        , dat_len as dataLen
+        , dat_scl_len as dataScale
+        , dat_min_val as dataMin
+        , dat_max_val as dataMax
+        , AVAL_ST_DT as avalStDt
+        , AVAL_END_DT as avalEndDt
+        FROM STD_DOM
+        WHERE subj_area_ID = #{standardAreaId} AND dmn_tp_cd = #{domainType}
+    </select>
+
+    <select id="searchStandardDomainDTOListByDataType" parameterType="string" resultType="com.dms.standarddataserver.standardData.dto.StandardDomainDTO">
+        SELECT dmn_id as domId
+        , subj_area_ID as stdAreaId
+        , key_dmn_nm as keyDomNm
+        , dmn_nm as domNm
+        , dmn_desc as domDesc
+        , dmn_tp_cd as domTypeCd
+        , dmn_grp_id as domGrpId
+        , dat_tp_cd as dataTypeCd
+        , dat_len as dataLen
+        , dat_scl_len as dataScale
+        , dat_min_val as dataMin
+        , dat_max_val as dataMax
+        , AVAL_ST_DT as avalStDt
+        , AVAL_END_DT as avalEndDt
+        FROM STD_DOM
+        WHERE subj_area_ID = #{standardAreaId} AND dat_tp_cd = #{dataType}
+    </select>
+
+    <select id="searchStandardDomainDTOListByDomainTypeAndDataType" parameterType="string" resultType="com.dms.standarddataserver.standardData.dto.StandardDomainDTO">
+        SELECT dmn_id as domId
+        , subj_area_ID as stdAreaId
+        , key_dmn_nm as keyDomNm
+        , dmn_nm as domNm
+        , dmn_desc as domDesc
+        , dmn_tp_cd as domTypeCd
+        , dmn_grp_id as domGrpId
+        , dat_tp_cd as dataTypeCd
+        , dat_len as dataLen
+        , dat_scl_len as dataScale
+        , dat_min_val as dataMin
+        , dat_max_val as dataMax
+        , AVAL_ST_DT as avalStDt
+        , AVAL_END_DT as avalEndDt
+        FROM STD_DOM
+        WHERE subj_area_ID = #{standardAreaId} AND dmn_tp_cd = #{domainType} AND dat_tp_cd = #{dataType}
+    </select>
+
+</mapper>

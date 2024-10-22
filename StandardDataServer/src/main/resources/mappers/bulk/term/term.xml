@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dms.standarddataserver.bulk.term.mapper.BulkTermMapper">
+
+    <resultMap type="com.dms.standarddataserver.bulk.term.dto.BulkTermExcelDataDTO" id="bulkTermExcelDataMap">
+        <id column="DIC_ID" property="dicId"/>
+        <result column="subj_area_ID" property="stdAreaId"/>
+        <result column="altn_dic_id" property="alternativeDicId"/>
+        <result column="dic_clss_cd" property="dicGbnCd"/>
+        <result column="DIC_LOG_NM" property="dicLogicalName"/>
+        <result column="dic_phys_nm" property="dicPhysicalName"/>
+        <result column="dic_phys_full_nm" property="dicPhysicalFullName"/>
+        <result column="DIC_DESC" property="dicDescription"/>
+        <result column="ett_clss_flg" property="entitySuffix"/>
+        <result column="attr_clss_flg" property="attributeSuffix"/>
+        <result column="stnd_flg" property="checkedStandard"/>
+        <result column="dmn_id" property="domainId"/>
+        <result column="AVAL_ST_DT" property="availableStartDate"/>
+        <result column="AVAL_END_DT" property="availableEndDate"/>
+    </resultMap>
+
+    <resultMap type="com.dms.standarddataserver.bulk.word.dto.BulkWordDataDTO" id="bulkWordDataMap">
+        <id column="DIC_ID" property="dicId"/>
+        <result column="subj_area_ID" property="stdAreaId"/>
+        <result column="altn_dic_id" property="alternativeDicId"/>
+        <result column="dic_clss_cd" property="dicGbnCd"/>
+        <result column="DIC_LOG_NM" property="dicLogicalName"/>
+        <result column="dic_phys_nm" property="dicPhysicalName"/>
+        <result column="dic_phys_full_nm" property="dicPhysicalFullName"/>
+        <result column="DIC_DESC" property="dicDescription"/>
+        <result column="ett_clss_flg" property="entitySuffix"/>
+        <result column="attr_clss_flg" property="attributeSuffix"/>
+        <result column="stnd_flg" property="checkedStandard"/>
+        <result column="dmn_id" property="domainId"/>
+        <result column="AVAL_ST_DT" property="availableStartDate"/>
+        <result column="AVAL_END_DT" property="availableEndDate"/>
+    </resultMap>
+
+    <select id="isDuplicatedInLogicalName" resultType="int">
+        select count(*)
+        from std_dict
+        where DIC_LOG_NM = #{dicLogicalName}
+        and subj_area_ID = #{stdAreaId}
+    </select>
+
+    <select id="checkRegisteredWord" resultType="String">
+        select stnd_flg
+        from std_dict
+        where DIC_LOG_NM = #{dicLogicalName}
+        and subj_area_ID = #{stdAreaId}
+    </select>
+
+    <select id="checkLastWordOfTerm" resultMap="bulkWordDataMap">
+        select attr_clss_flg, stnd_flg
+        from std_dict
+        where DIC_LOG_NM = #{dicLogicalName}
+        and subj_area_ID = #{stdAreaId}
+    </select>
+
+    <select id="findPhysicalNameOfWord" resultType="String">
+        select dic_phys_nm
+        from std_dict
+        where DIC_LOG_NM = #{dicLogicalName}
+        and subj_area_ID = #{stdAreaId}
+    </select>
+
+    <select id="findDicIdByWordName" resultType="String">
+        select DIC_ID
+        from std_dict
+        where DIC_LOG_NM = #{dicLogicalName}
+        and subj_area_ID = #{stdAreaId}
+        and dic_clss_cd = 'word'
+    </select>
+
+    <insert id="insertBulkTerm" parameterType="com.dms.standarddataserver.bulk.term.dto.BulkTermDataDTO">
+        INSERT INTO std_dict (
+        dic_id,
+        subj_area_id,
+        dic_clss_cd,
+        dic_log_nm,
+        dic_phys_nm,
+        dic_desc,
+        dmn_id
+        )
+        VALUES (
+        #{dicId, jdbcType=VARCHAR},
+        #{stdAreaId, jdbcType=VARCHAR},
+        #{dicGbnCd, jdbcType=VARCHAR},
+        #{dicLogicalName, jdbcType=VARCHAR},
+        #{dicPhysicalName, jdbcType=VARCHAR},
+        #{dicDescription, jdbcType=VARCHAR},
+        #{domainId, jdbcType=VARCHAR}
+        )
+    </insert>
+
+    <insert id="insertWordOfTerm" parameterType="com.dms.standarddataserver.bulk.term.dto.WordOfTermDTO">
+        insert into STD_TERM (
+        subj_area_id,
+        TERM_ID,
+        ord_no,
+        DIC_ID
+        )
+        VALUES (
+        #{stdAreaId, jdbcType=VARCHAR},
+        #{termId, jdbcType=VARCHAR},
+        #{orderNum, jdbcType=VARCHAR},
+        #{dicId, jdbcType=VARCHAR}
+        )
+    </insert>
+
+</mapper>

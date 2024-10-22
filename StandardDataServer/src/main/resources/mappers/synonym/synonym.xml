@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dms.standarddataserver.synonym.mapper.SynonymSearchMapper">
+
+    <!--동의어 조회-->
+    <select id="selectList" parameterType="com.dms.standarddataserver.synonym.dto.SynonymDTO" resultType="com.dms.standarddataserver.synonym.dto.SynonymDTO">
+	with all_synm as (
+	select distinct c2.ord as standardYn,
+	sd.dic_id as dicId,
+	COALESCE(sd.altn_dic_id, sd.dic_id) as altDicId,
+	sd.aval_end_dt as avalEndDt,
+	sd.aval_st_dt as avalStDt,
+	sd.dic_log_nm as dicLogNm,
+	sd.ett_clss_flg as entClssYn,
+	sd.attr_clss_flg as attrClssYn,
+	sd.dic_phys_nm as dicPhyNm,
+	sd.dic_desc as dicDesc
+	from std_dict sd,
+		(select ord, case when ord = 0 then altn_dic_id else dic_id end as dic_id, altn_dic_id
+		from (
+			select 0 as ord, * --dic_id, altn_dic_id -- true
+			from std_dict
+			where altn_dic_id is not null
+			and dic_log_nm like #{dicLogNm} || '%'
+			and dic_clss_cd = 'word'
+			and subj_area_id = #{stdAreaId}
+			union all
+			select 1, * --dic_id, 'false' -- false
+			from std_dict
+			where altn_dic_id is not null
+			and dic_log_nm like #{dicLogNm} || '%'
+			and dic_clss_cd = 'word'
+			and subj_area_id = #{stdAreaId}
+		) as C1) as C2
+	where sd.dic_id = c2.dic_id
+	order by altDicId, ord
+	)
+	--	select * from all_synm a ;
+	, par_word as (
+		select distinct a.* from all_synm a
+		where standardYn = 0
+		and dicLogNm like #{dicLogNm} || '%'
+		)  
+	, child_word as (
+		select distinct a.* from all_synm a
+		where standardYn = 1
+		and dicLogNm like #{dicLogNm} || '%'
+		)
+	select * from par_word -- where dic_id in (select distinct altn_dic_id from child_word)
+	union
+	select * from all_synm where dicId in (select distinct altDicId from child_word)
+	union
+	select * from child_word
+	order by altDicId, standardYn
+    </select>
+
+</mapper>

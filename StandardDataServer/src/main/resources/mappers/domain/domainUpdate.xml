@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dms.standarddataserver.single.domain.mapper.DomainMapper">
+
+
+    <update id="updateDomain" parameterType="com.dms.standarddataserver.single.domain.dto.DomainDTO">
+        UPDATE STD_DOM
+        SET key_dmn_nm = #{keyDomName},
+            dmn_nm = #{domName},
+            dmn_desc = #{domDescription},
+            dmn_tp_cd = #{domTypeCode},
+            dmn_grp_id = #{domGroupId},
+            dat_tp_cd = #{dataTypeCode},
+            dat_len = #{dataLen},
+            dat_scl_len = #{dataScale},
+            dat_min_val = #{dataMin},
+            dat_max_val = #{dataMax}
+        WHERE dmn_id = #{domId}
+        AND subj_area_ID = #{selectStandardArea}
+    </update>
+
+</mapper>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dms.standarddataserver.single.domain.mapper.DomainMapper">
+
+    <resultMap type="com.dms.standarddataserver.single.domain.dto.DomainDTO" id="map">
+        <id column="dmn_id" property="domId"/>
+        <result column="subj_area_ID" property="stdAreaId"/>
+        <result column="key_dmn_nm" property="keyDomName"/>
+        <result column="dmn_id" property="domId"/>
+        <result column="dmn_nm" property="domName"/>
+        <result column="dmn_desc" property="domDescription"/>
+        <result column="dmn_tp_cd" property="domTypeCode"/>
+        <result column="dmn_grp_id" property="domGroupId"/>
+        <result column="dmn_grp_nm" property="domGroupName"/>
+        <result column="dat_tp_cd" property="dataTypeCode"/>
+        <result column="dat_len" property="dataLen"/>
+        <result column="dat_scl_len" property="dataScale"/>
+        <result column="dat_min_val" property="dataMin"/>
+        <result column="dat_max_val" property="dataMax"/>
+        <result column="AVAL_ST_DT" property="avalStDt"/>
+        <result column="AVAL_END_DT" property="avalEndDt"/>
+    </resultMap>
+
+    <select id="selectDomainList" resultMap="map">
+    SELECT sd.KEY_dmn_nm, 
+       sd.dmn_nm, 
+       sd.dmn_tp_cd, 
+       sd.dat_tp_cd, 
+       sd.dat_len, 
+       sd.dat_scl_len, 
+       sdg.dmn_grp_nm
+	FROM STD_DOM sd
+	left join std_dom_grp sdg on sd.dmn_grp_id  = sdg.dmn_grp_id
+	WHERE sd.subj_area_ID = #{stdAreaId}
+    AND sd.dmn_nm LIKE '%${domainName}%'
+    AND sd.key_dmn_nm = #{keyDomName}
+    </select>
+
+    <select id="selectAllDomains" resultMap="map">
+    SELECT sd.key_dmn_nm,
+       sd.dmn_id, 
+       sd.dmn_nm, 
+       sd.dmn_tp_cd, 
+       sd.dat_tp_cd, 
+       sd.dat_len, 
+       sd.dat_scl_len, 
+       sdg.dmn_grp_nm
+	FROM STD_DOM sd
+	left join std_dom_grp sdg on sd.dmn_grp_id  = sdg.dmn_grp_id
+	WHERE sd.subj_area_ID = #{stdAreaId}
+	AND sd.key_dmn_nm = #{keyDomName}
+    </select>
+
+</mapper>

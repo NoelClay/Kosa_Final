@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.dms.standarddataserver.term.mapper.TermMapper">
+
+
+    <resultMap type="com.dms.standarddataserver.term.dto.TermDomainDTO" id="termDomainMap">
+        <id column="DIC_ID" property="dicId"/>
+        <result column="subj_area_ID" property="stdAreaId"/>
+        <result column="altn_dic_id" property="altDicId"/>
+        <result column="dic_clss_cd" property="dicGbnCd"/>
+        <result column="DIC_LOG_NM" property="dicLogNm"/>
+        <result column="dic_phys_nm" property="dicPhyNm"/>
+        <result column="dic_phys_full_nm" property="dicPhyFllNm"/>
+        <result column="DIC_DESC" property="dicDesc"/>
+        <result column="ett_clss_flg" property="entClssYn"/>
+        <result column="attr_clss_flg" property="attrClssYn"/>
+        <result column="stnd_flg" property="standardYn"/>
+        <result column="dmn_id" property="domId"/>
+        <result column="AVAL_ST_DT" property="avalStDt"/>
+        <result column="AVAL_END_DT" property="avalEndDt"/>
+        <result column="dmn_id" property="domId"/>
+        <result column="dmn_nm" property="domName"/>
+        <result column="dat_tp_cd" property="dataTypeCode"/>
+        <result column="dmn_tp_cd" property="domTypeCode"/>
+
+
+    </resultMap>
+
+
+    <select id="getTermInfo" parameterType="com.dms.standarddataserver.term.dto.TermDomainDTO" resultMap="termDomainMap">
+        SELECT std_dict.DIC_ID, std_dict.subj_area_ID, std_dict.altn_dic_id, std_dict.dic_clss_cd, std_dict.DIC_LOG_NM, std_dict.dic_phys_nm, std_dict.dic_phys_full_nm, std_dict.DIC_DESC,
+        STD_DOM.dmn_id, STD_DOM.dmn_nm, STD_DOM.dat_tp_cd, STD_DOM.dmn_tp_cd
+        FROM std_dict
+        INNER JOIN STD_DOM ON std_dict.dmn_id = STD_DOM.dmn_id
+        WHERE std_dict.DIC_ID = #{dicId}
+    </select>
+
+
+
+
+</mapper>

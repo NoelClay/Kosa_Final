@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dms.standarddataserver.authorization.individual.mapper.IndividualAuthorizationMapper">
+
+<resultMap type="com.dms.standarddataserver.authorization.individual.dto.IndividualUserDTO" id="individualUserMap">
+	<result property="usrId" column="usr_id"/>
+    <result property="usrName" column="usr_nm"/>
+    <result property="usrPassword" column="usr_pwd"/>
+    <result property="useYn" column="use_flg"/>
+    <result property="usrEmail" column="usr_eml"/>
+    <result property="groupId" column="grp_id"/>
+    <result property="groupName" column="grp_nm"/>
+</resultMap>
+
+<resultMap type="com.dms.standarddataserver.authorization.individual.dto.IndividualAuthorizationByStdjAreaIdDTO" id="individualAuthorizationByStdjAreaIdMap">
+	<result property="subjAreaId" column="subj_area_id"/>
+    <result property="subjAreaName" column="subj_area_nm"/>
+    <result property="authTpCd" column="auth_tp_cd"/>
+    <result property="usrId" column="usr_id"/>
+</resultMap>
+
+<resultMap type="com.dms.standarddataserver.authorization.individual.dto.IndividualAuthorizationByGroupIdDTO" id="individualAuthorizationByGroupIdMap">
+	<result property="subjAreaId" column="subj_area_id"/>
+	<result property="subjAreaName" column="subj_area_nm"/>
+    <result property="groupId" column="grp_id"/>
+    <result property="groupName" column="grp_nm"/>
+    <result property="authTpCd" column="auth_tp_cd"/>
+</resultMap>
+
+<resultMap type="com.dms.standarddataserver.authorization.individual.dto.SubjAreaDetailDTO" id="subjAreaDetailMap">
+	<result property="subjAreaId" column="subj_area_id"/>
+	<result property="subjAreaName" column="subj_area_nm"/>
+    <result property="subjAreaDesc" column="subj_area_desc"/>
+</resultMap>
+
+    <!--<select id="getAllIndividualAuthorizationList" resultMap="individualUserMap">
+        SELECT du.usr_id, du.usr_nm, dg.grp_nm 
+		FROM dms_user du
+		LEFT JOIN dms_usr_grp dug ON du.usr_id = dug.usr_id 
+		LEFT JOIN dms_grp dg ON dug.grp_id = dg.grp_id
+    </select>-->
+    
+    <select id="getAllIndividualAuthorizationList" resultMap="individualUserMap">
+        SELECT usr_id, usr_nm, use_flg
+		FROM dms_user
+		WHERE use_flg = 'Y'
+		ORDER BY use_flg DESC, usr_id ASC
+    </select>
+    
+    <select id="findIndividualUserById" resultMap="individualUserMap">
+        SELECT *
+		FROM dms_user du
+		WHERE du.usr_id = #{usrId}
+    </select>
+    
+    <!--<select id="findIndividualUserById" resultMap="individualUserMap">
+        SELECT *
+		FROM dms_user du
+		LEFT JOIN dms_usr_grp dug ON du.usr_id = dug.usr_id 
+		LEFT JOIN dms_grp dg ON dug.grp_id = dg.grp_id
+		WHERE du.usr_id = #{usrId}
+    </select>  -->
+    
+    <insert id="insertIndividual">
+    	INSERT INTO dms_user (
+    		usr_id,
+    		usr_nm,
+    		usr_pwd,
+    		use_flg
+    	)
+    	VALUES (
+    	#{usrId},
+    	#{usrName},
+    	encode(encrypt(convert_to(#{usrPassword},'utf8'),'ENC_KEY','aes'),'hex'),
+    	#{useYn}
+    	)
+    </insert>
+    
+    <!-- admin 은 표준 분류 체계 등록과 동시에 권한 'W' 추가 -->
+    <insert id="insertAdminAuth">
+	    INSERT INTO dms_usr_auth (
+    		subj_area_id,
+    		usr_id,
+    		auth_tp_cd
+    	)
+    	VALUES (
+    	#{subjAreaId},
+    	#{usrId},
+    	'W'
+    	)
+    </insert>
+    
+    <!-- 신규 권한 추가 -->
+    <insert id="insertIndividualAuth">
+	    <foreach collection="list" item="individualAuth" separator=";">
+		    INSERT INTO dms_usr_auth (
+	    		subj_area_id,
+	    		usr_id,
+	    		auth_tp_cd
+	    	)
+	    	VALUES (
+	    	#{individualAuth.subjAreaId},
+	    	#{individualAuth.usrId},
+	    	#{individualAuth.authTpCd}
+	    	)
+	    </foreach>
+    </insert>
+    
+    <!-- 기존 회원 권한 추가 -->
+    <insert id="insertIndividualAuthOneByOne">
+	    INSERT INTO dms_usr_auth (
+    		subj_area_id,
+    		usr_id,
+    		auth_tp_cd
+    	)
+    	VALUES (
+    	#{subjAreaId},
+    	#{usrId},
+    	#{authTpCd}
+    	)
+    </insert>
+    
+    <!-- 모든 표준분류체계 조회 -->
+    <select id="getAllSubjAreaList" resultMap="subjAreaDetailMap">
+        SELECT *
+		FROM subj_area
+    </select>
+    
+    <select id="findIndividualAuthorizationByStdjAreaId" resultMap="individualAuthorizationByStdjAreaIdMap">
+		SELECT sa.subj_area_id,
+			   sa.subj_area_nm,
+		       dua.usr_id, 
+		       dua.auth_tp_cd 
+		FROM   subj_area sa 
+		       LEFT JOIN (SELECT * 
+		                  FROM   dms_usr_auth 
+		                  WHERE  usr_id = #{usrId}) dua 
+		              ON sa.subj_area_id = dua.subj_area_id
+    </select>
+    
+    <select id="findIndividualAuthorizationByGroupId" resultMap="individualAuthorizationByGroupIdMap">
+        SELECT *
+		FROM dms_grp_auth dga 
+		LEFT JOIN dms_grp dg ON dga.grp_id = dg.grp_id
+		LEFT JOIN subj_area sa ON dga.subj_area_id = sa.subj_area_id 
+		where dga.grp_id = #{groupId}
+    </select>
+    
+    <!-- 사용자 검색 -->
+    <select id="getAllUsersBySearch" resultMap="individualUserMap">
+        SELECT *
+		FROM dms_user du 
+		WHERE 
+        <if test="searchCondition == 'ID'">
+            du.usr_id like '%' || #{searchValue} || '%'
+        </if>
+        <if test="searchCondition == 'NAME'">
+            du.usr_nm like '%' || #{searchValue} || '%'
+        </if>
+        <if test="searchCondition == 'INACTIVE'">
+            du.use_flg = 'N'
+        </if>
+        ORDER BY use_flg DESC, usr_id ASC
+    </select>
+    
+    <!-- 표준분류체계별 개인 사용자 권한 조회 -->
+    <select id="findIndividualIdAndSubjAreaId">
+        SELECT auth_tp_cd
+		FROM dms_usr_auth
+		WHERE subj_area_id = #{subjAreaId}
+		AND usr_id = #{usrId}
+    </select>
+    
+    <!-- 개인별 사용자 권한 수정 -->
+	<update id="updateIndividualAuthorization">
+	    UPDATE dms_usr_auth
+	    SET auth_tp_cd = #{authTpCd}
+	    WHERE usr_id = #{usrId} 
+	    AND subj_area_id = #{subjAreaId}
+	</update>
+	
+	<!-- 아이디 중복확인 -->
+	<select id="validateUserId">
+        SELECT count(*)
+		FROM dms_user
+		WHERE usr_id = #{userId}
+    </select>
+    
+    <delete id="deleteSubjAreaInUsrAuth">
+        DELETE FROM dms_usr_auth
+        WHERE subj_area_id = #{subjAreaId}
+    </delete>
+    
+    <!-- 개인별 사용자 삭제 -->
+    <update id="deleteUser">
+	    UPDATE dms_user
+	    SET use_flg = 'N'
+	    WHERE usr_id = #{usrId} 
+	</update>
+	
+	<!-- 개인별 사용자 상세 정보 수정 -->
+	<update id="updateUser">
+	    UPDATE dms_user
+   		SET 
+       		usr_pwd = CASE 
+                   		WHEN #{usrPassword} IS NOT NULL AND #{usrPassword} != '' 
+                   		THEN encode(encrypt(convert_to(#{usrPassword}, 'utf8'), 'ENC_KEY', 'aes'), 'hex')
+                   	  ELSE
+                     	usr_pwd
+                 	  END,
+       		usr_eml = CASE
+                   		WHEN #{usrEmail} IS NOT NULL AND #{usrEmail} != '' 
+                   		THEN #{usrEmail}
+                   	  ELSE
+                     	usr_eml 
+                 	  END,
+       		use_flg = #{useYn}
+ 		WHERE 
+       		usr_id = #{usrId}
+
+	</update>
+	
+</mapper>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dms.standarddataserver.standardData.mapper.StandardDataSearchMapper">
+
+    <resultMap id="standardDataDictionaryDTO" type="com.dms.standarddataserver.standardData.dto.StandardDictionaryDTO">
+        <result column="dic_id" property="dicId"/>
+        <result column="subj_area_ID" property="stdAreaId"/>
+        <result column="altn_dic_id" property="altDicId"/>
+        <result column="dic_clss_cd" property="dicGbnCd"/>
+        <result column="dic_log_nm" property="dicLogNm"/>
+        <result column="dic_phys_nm" property="dicPhyNm"/>
+        <result column="dic_phys_full_nm" property="dicPhyFllNm"/>
+        <result column="DIC_DESC" property="dicDesc"/>
+        <result column="ett_clss_flg" property="entClssYn"/>
+        <result column="attr_clss_flg" property="attrClssYn"/>
+        <result column="stnd_flg" property="standardYn"/>
+        <result column="dmn_id" property="domId"/>
+        <result column="AVAL_ST_DT" property="avalStDt"/>
+        <result column="AVAL_END_DT" property="avalEndDt"/>
+    </resultMap>
+
+    <select id="searchDictionaryByStandardArea" parameterType="string" resultMap="standardDataDictionaryDTO">
+        SELECT *
+        FROM std_dict
+        WHERE subj_area_ID = #{standardAreaId}
+    </select>
+
+    <select id="getSynonymList" parameterType="string"
+            resultMap="standardDataDictionaryDTO">
+        SELECT dic_id, subj_area_ID, altn_dic_id, dic_log_nm
+        FROM std_dict
+        WHERE subj_area_ID = #{standardAreaId}
+        AND altn_dic_id IS NOT NULL
+    </select>
+    
+    <select id="checkSynonym" parameterType="com.dms.standarddataserver.standardData.dto.StandardDataDTO"
+            resultMap="standardDataDictionaryDTO">
+        SELECT *
+        FROM std_dict
+        WHERE altn_dic_id = (
+        SELECT DIC_ID
+        FROM std_dict
+        WHERE DIC_ID = #{standardDataDTO.synonym}
+        )
+    </select>
+
+    <select id="searchDictionaryDTOByDictionaryId"
+            parameterType="com.dms.standarddataserver.standardData.dto.StandardDataDTO"
+            resultMap="standardDataDictionaryDTO">
+        SELECT *
+        FROM std_dict
+        WHERE DIC_ID = #{standardDataDTO.synonym}
+    </select>
+
+    <select id="selectDomainGroupByDomainGroupId" parameterType="string" resultType="string">
+        SELECT dmn_grp_NM
+        FROM std_dom_grp
+        WHERE dmn_grp_ID = #{standardDomainGroupId}
+    </select>
+
+    <select id="selectRelatedTermByLogicalName" parameterType="string" resultType="string">
+        SELECT DIC_LOG_NM
+        FROM std_dict
+        WHERE DIC_LOG_NM LIKE '%' || #{logicalName} || '%'
+        AND dic_clss_cd = 'term'
+        AND subj_area_ID = #{standardAreaId}
+    </select>
+    <select id="selectRelatedTermByDomainId" parameterType="string" resultType="string">
+        SELECT DIC_LOG_NM
+        FROM std_dict
+        WHERE dmn_id = #{domainId}
+        AND dic_clss_cd = 'term'
+        AND subj_area_ID = #{standardAreaId}
+    </select>
+
+
+</mapper>

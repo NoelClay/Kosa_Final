@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- resources/mapper/StandardAreaInsertMapper.xml -->
+<mapper namespace="com.dms.standarddataserver.standardArea.mapper.DomainGroupAutoMapper">
+
+    <insert id="insertAutoDomainGroup">
+        INSERT INTO std_dom_grp (
+        dmn_grp_id,
+        subj_area_id,
+        dmn_grp_nm,
+        dmn_grp_desc
+        )
+        VALUES (
+        #{domainGroupId},
+        #{subjAreaId},
+        #{domainGroupName},
+        #{domainGroupDesc}
+        )
+    </insert>
+    
+    <insert id="insertDomainGroup">
+        INSERT INTO STD_DOM_GRP (
+        dmn_grp_ID,
+        subj_area_ID,
+        dmn_grp_NM,
+        dmn_grp_DESC
+        )
+        VALUES (
+        #{domainGroupId},
+        #{standardAreaId},
+        'Default DomainGroup Name',
+        '도메인 추가시 기본으로 추가되는 도메인 그룹 입니다.'
+        )
+    </insert>
+    
+    <delete id="deleteSubjAreaInDomainGroup">
+        DELETE FROM std_dom_grp
+        WHERE subj_area_id = #{subjAreaId}
+    </delete>
+</mapper>

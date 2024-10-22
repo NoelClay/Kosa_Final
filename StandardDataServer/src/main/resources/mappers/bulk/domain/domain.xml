@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dms.standarddataserver.bulk.domain.mapper.BulkDomainMapper">
+
+    <resultMap type="com.dms.standarddataserver.bulk.domain.dto.DomainExcelDataDTO" id="domainExcelDataMap">
+        <id column="dmn_id" property="domainId"/>
+        <result column="subj_area_ID" property="stdAreaId"/>
+        <result column="KEY_dmn_nm" property="keyDomainName"/>
+        <result column="dmn_nm" property="domainName"/>
+        <result column="dmn_desc" property="domainDescription"/>
+        <result column="dmn_tp_cd" property="domainTypeCode"/>
+        <result column="dmn_grp_id" property="domainGroupId"/>
+        <result column="dat_tp_cd" property="dataTypeCode"/>
+        <result column="dat_len" property="dataLength"/>
+        <result column="dat_scl_len" property="dataScale"/>
+        <result column="dat_min_val" property="dataMin"/>
+        <result column="dat_max_val" property="dataMax"/>
+        <result column="AVAL_ST_DT" property="availableStartDate"/>
+        <result column="AVAL_END_DT" property="availableEndDate"/>
+    </resultMap>
+
+    <select id="getRegisteredDomainGroupId" resultType="String">
+        select dmn_grp_id
+        from STD_DOM_GRP
+        where dmn_grp_NM = #{domainGroupName}
+        and subj_area_ID = #{stdAreaId}
+    </select>
+
+    <select id="isDuplicatedByDomainGroupId" resultType="int">
+        select COUNT(*)
+        from STD_DOM
+        where dmn_nm = #{domainName}
+        and dmn_grp_id = #{domainGroupId}
+        and subj_area_ID = #{stdAreaId}
+    </select>
+
+    <select id="isDuplicated" resultType="int">
+        select COUNT(*)
+        from STD_DOM
+        where dmn_nm = #{domainName}
+        and (dmn_grp_id is null or dmn_grp_id = '')
+        and subj_area_ID = #{stdAreaId}
+    </select>
+
+    <select id="findDomainId" resultType="String">
+        SELECT dmn_id
+        FROM std_dom
+        WHERE dmn_nm = #{domainName}
+        AND (dmn_grp_id is null or dmn_grp_id = '')
+        AND subj_area_ID = #{stdAreaId}
+    </select>
+
+    <select id="findDomainIdWithDomainGroupId" resultType="String">
+        select dmn_id
+        from STD_DOM
+        where dmn_nm = #{domainName}
+        and dmn_grp_id = #{domainGroupId}
+        and subj_area_ID = #{stdAreaId}
+    </select>
+
+    <select id="selectAllDomain" resultMap="domainExcelDataMap">
+        select *
+        from STD_DOM
+        where subj_area_ID = #{stdAreaId}
+    </select>
+
+    <select id="findDomainByDomainId" resultMap="domainExcelDataMap">
+        select *
+        from STD_DOM
+        where dmn_id = #{domainId}
+        and subj_area_ID = #{stdAreaId}
+    </select>
+
+    <select id="findDomainGroupName" resultType="String">
+        select dmn_grp_NM
+        from STD_DOM_GRP
+        where dmn_grp_id = #{domainGroupId}
+        and subj_area_ID = #{stdAreaId}
+    </select>
+    
+    <select id="isCorrectDataType" resultType="int">
+        SELECT COUNT(*)
+        FROM std_dom_dat_tp_cd
+        where dat_tp_nm = #{dataType}
+    </select>
+
+    <insert id="insertBulkDomain" parameterType="com.dms.standarddataserver.bulk.domain.dto.DomainExcelDataDTO">
+        insert into STD_DOM (
+        dmn_id,
+        subj_area_ID,
+        KEY_dmn_nm,
+        dmn_nm,
+        dmn_desc,
+        dmn_tp_cd,
+        dmn_grp_id,
+        dat_tp_cd,
+        dat_len,
+        dat_scl_len,
+        dat_min_val,
+        dat_max_val
+        )
+        VALUES (
+        #{domainId, jdbcType=VARCHAR},
+        #{stdAreaId, jdbcType=VARCHAR},
+        #{keyDomainName, jdbcType=VARCHAR},
+        #{domainName, jdbcType=VARCHAR},
+        #{domainDescription, jdbcType=VARCHAR},
+        #{domainTypeCode, jdbcType=VARCHAR},
+        #{domainGroupId, jdbcType=VARCHAR},
+        #{dataTypeCode, jdbcType=VARCHAR},
+        #{dataLength, jdbcType=INTEGER},
+        #{dataScale, jdbcType=INTEGER},
+        #{dataMin, jdbcType=INTEGER},
+        #{dataMax, jdbcType=INTEGER}
+        )
+    </insert>
+</mapper>

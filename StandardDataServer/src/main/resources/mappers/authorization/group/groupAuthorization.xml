@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dms.standarddataserver.authorization.group.mapper.GroupAuthorizationMapper">
+
+<resultMap type="com.dms.standarddataserver.authorization.group.dto.GroupDTO" id="groupMap">
+	<result property="groupId" column="grp_id"/>
+    <result property="groupName" column="grp_nm"/>
+    <result property="groupDesc" column="grp_desc"/>
+</resultMap>
+
+<resultMap type="com.dms.standarddataserver.authorization.group.dto.GroupAuthorizationBySubjAreaIdDTO" id="groupAuthorizationByStdjAreaIdMap">
+	<result property="subjAreaId" column="std_area_id"/>
+    <result property="subjAreaName" column="std_area_nm"/>
+    <result property="groupId" column="grp_id"/>
+    <result property="groupName" column="grp_nm"/>
+    <result property="authTpCd" column="auth_tp_cd"/>
+</resultMap>
+
+<resultMap type="com.dms.standarddataserver.authorization.group.dto.GroupMemberDTO" id="GroupMemberMap">
+	<result property="groupName" column="grp_nm"/>
+	<result property="usrId" column="member_id"/>
+    <result property="usrName" column="member_nm"/>
+</resultMap>
+
+	<!-- 전체 그룹 조회 -->
+    <select id="getAllGroupList" resultMap="groupMap">
+        SELECT * 
+		FROM dms_grp
+    </select>
+    
+    <!-- 특정 그룹의 전체 프로젝트별 권한 -->
+    <select id="findGroupAuthorizationByStdjAreaId" resultMap="groupAuthorizationByStdjAreaIdMap">
+		SELECT *
+		FROM dms_grp_auth dga 
+		LEFT JOIN dms_grp dg ON dga.grp_id = dg.grp_id 
+		LEFT JOIN std_area sa ON dga.subj_area_id = sa.std_area_id 
+		WHERE dga.grp_id = #{groupId};
+    </select>
+    
+    <!-- 특정 그룹의 사용자 목록 -->
+    <select id="findAllMemberByGroupId" resultMap="GroupMemberMap">
+		SELECT dg.grp_nm, dug.member_id, mem.member_nm  
+		FROM dms_usr_grp dug 
+		LEFT JOIN member mem ON dug.member_id = mem.member_id 
+		LEFT JOIN dms_grp dg ON dug.grp_id = dg.grp_id 
+		WHERE dug.grp_id = #{groupId};
+    </select>
+
+</mapper>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dms.standarddataserver.standardArea.mapper.StandardAreaSelectListMapper">
+
+    <resultMap id="StandardAreaResultMap" type="com.dms.standarddataserver.standardArea.dto.StandardAreaDTO">
+        <result property="stdAreaId" column="subj_area_ID" />
+        <result property="stdAreaNm" column="subj_area_NM" />
+        <result property="stdAreaDesc" column="subj_area_DESC" />
+        <result property="avalStDt" column="AVAL_ST_DT" />
+        <result property="avalEndDt" column="AVAL_END_DT" />
+        <!-- 다른 필드에 대한 매핑 추가 -->
+    </resultMap>
+    
+    <select id="selectList" resultMap="StandardAreaResultMap">
+		SELECT auth.subj_area_id, sa.subj_area_nm
+		FROM (
+		    SELECT subj_area_id, auth_tp_cd
+		    FROM dms_usr_auth
+		    WHERE usr_id = #{memberId}
+		    UNION
+		    SELECT subj_area_id, auth_tp_cd
+		    FROM dms_grp_auth
+		    WHERE grp_id IN (
+		        SELECT grp_id
+		        FROM dms_usr_grp
+		        WHERE usr_id = #{memberId}
+		    )
+		) AS auth
+		LEFT JOIN subj_area AS sa ON auth.subj_area_id = sa.subj_area_id
+		GROUP BY auth.subj_area_id, sa.subj_area_nm
+		ORDER BY sa.subj_area_nm
+    </select>
+
+    <!--<select id="selectList" resultMap="StandardAreaResultMap">
+        SELECT *
+		FROM dms_usr_auth dua 
+		LEFT JOIN subj_area sa ON dua.subj_area_id = sa.subj_area_id 
+		WHERE dua.usr_id = #{memberId}
+    </select>-->
+</mapper>

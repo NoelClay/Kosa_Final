@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- resources/mapper/StandardAreaInsertMapper.xml -->
+<mapper namespace="com.dms.standarddataserver.standardArea.mapper.StandardAreaInsertMapper">
+    <insert id="insert" parameterType="com.dms.standarddataserver.standardArea.dto.StandardAreaDTO">
+        INSERT INTO subj_area (
+        subj_area_ID,
+        subj_area_NM,
+        subj_area_DESC,
+        cre_usr_id
+        )
+        VALUES (
+        #{standardAreaDTO.stdAreaId},
+        #{standardAreaDTO.stdAreaNm},
+        #{standardAreaDTO.stdAreaDesc},
+        #{standardAreaDTO.userId}
+        )
+    </insert>
+</mapper>
