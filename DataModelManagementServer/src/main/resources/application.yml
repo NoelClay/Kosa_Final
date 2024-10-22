@@ -1,9 +1,20 @@
 spring:
+
+  devtools:
+    livereload:
+      enabled: true
+
+# #=============jmx 추가
+#   jmx:
+#     enabled: true
+#     default-domain: your.application.domain
+# #===============================
   datasource:
     driver-class-name: org.postgresql.Driver
 #    url: jdbc:postgresql://34.64.236.95:5432/meta_db
     #원본 url: jdbc:postgresql://10.52.208.5:5432/meta_db
-    url: jdbc:postgresql://db:5432/meta_db
+    # url: jdbc:postgresql://db:5432/meta_db
+    url: jdbc:postgresql://192.168.240.119:5432/meta_db
     username: meta_adm
     password: QweR12#$34
   
@@ -38,16 +49,18 @@ mybatis:
       maxFileSize: 10MB
       maxRequestSize: 10MB
 
-#management:
-#  endpoints:
-#    web:
-#      exposure:
-#        include: "*"
-#  endpoint:
-#    health:
-#      show-details: always
-#    gateway:
-#      enabled: true
+# ======== 도커 배포할때는 해제하고 자바에서 테스트할때는 활성화
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+    gateway:
+      enabled: true
+# ========================
 
 
 # Port
