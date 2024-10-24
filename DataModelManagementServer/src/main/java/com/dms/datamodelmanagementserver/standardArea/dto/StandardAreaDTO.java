@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class StandardAreaDTO implements Serializable{
+    //표준데이터 테이블 인스턴스 DTO
     private String stdAreaId;
     private String stdAreaNm;
     private String stdAreaDesc;

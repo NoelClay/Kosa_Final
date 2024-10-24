@@ -1,3 +1,15 @@
+# Logging 설정
+logging:
+  level:
+    root: INFO
+    org.springframework.web: DEBUG  # Spring Web 관련 모든 로그를 DEBUG 수준으로 설정
+    your.package.name: DEBUG  # 특정 패키지에 대한 로그 레벨을 DEBUG로 설정
+    org.hibernate.SQL: DEBUG  # Hibernate SQL 쿼리 로그를 DEBUG 수준으로 설정
+  file:
+    path: /logs/app.log  # 로그 파일 경로 설정 (optional)
+    max-size: 10MB       # 최대 파일 크기 설정
+    max-history: 30      # 로그 파일 보관 기간
+
 spring:
 
   devtools:
@@ -50,16 +62,15 @@ mybatis:
       maxRequestSize: 10MB
 
 # ======== 도커 배포할때는 해제하고 자바에서 테스트할때는 활성화
+# Spring Boot Actuator 설정 (요청 추적을 위한 추가 설정)
 management:
   endpoints:
     web:
       exposure:
-        include: "*"
+        include: "httptrace"  # httptrace 엔드포인트를 활성화하여 요청 추적
   endpoint:
-    health:
-      show-details: always
-    gateway:
-      enabled: true
+    httptrace:
+      enabled: true  # httptrace 엔드포인트 활성화
 # ========================
 
 

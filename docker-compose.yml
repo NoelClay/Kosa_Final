@@ -13,9 +13,24 @@ services:
       context: ./DataModelManagementServer
       dockerfile: Dockerfile
     volumes:
-      - ./app:/usr/src/app
+      # - ./app:/usr/src/app
+
+      - ./DataModelManagementServer:/usr/src/app  # 소스 코드를 컨테이너에 마운트
+      - ./DataModelManagementServer/.gradle:/root/.gradle  # Gradle 캐시를 마운트하여 의존성 재설치를 방지
+
+      - ./logs/dms:/logs
     ports:
       - "80:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      # - LOGGING_LEVEL_ROOT=INFO
+      # - LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_WEB=DEBUG  # 환경 변수를 통해 로그 레벨 설정
+      # - LOGGING_LEVEL_YOUR_PACKAGE_NAME=DEBUG
+    logging:
+      driver: "json-file"  # 로그 드라이버 설정 (json, syslog, awslogs 등 다양한 옵션 사용 가능)
+      options:
+        max-size: "10m"  # 로그 파일의 최대 크기 설정
+        max-file: "5"    # 로그 파일의 최대 개수 설정 (순환 로그를 사용할 경우)
 
   std:
     container_name: ct_std
@@ -24,9 +39,24 @@ services:
       context: ./StandardDataServer
       dockerfile: Dockerfile
     volumes:
-      - ./app:/usr/src/app
+      # - ./app:/usr/src/app
+
+      - ./StandardDataServer:/usr/src/app  # 소스 코드를 컨테이너에 마운트
+      - .StandardDataServer/.gradle:/root/.gradle  # Gradle 캐시를 마운트하여 의존성 재설치를 방지
+
+      - ./logs/std:/logs      
     ports:
       - "8082:8082"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      # - LOGGING_LEVEL_ROOT=INFO
+      # - LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_WEB=DEBUG  # 환경 변수를 통해 로그 레벨 설정
+      # - LOGGING_LEVEL_YOUR_PACKAGE_NAME=DEBUG
+    logging:
+      driver: "json-file"  # 로그 드라이버 설정 (json, syslog, awslogs 등 다양한 옵션 사용 가능)
+      options:
+        max-size: "10m"  # 로그 파일의 최대 크기 설정
+        max-file: "5"    # 로그 파일의 최대 개수 설정 (순환 로그를 사용할 경우)
 
   db:
     image: postgres:15.6

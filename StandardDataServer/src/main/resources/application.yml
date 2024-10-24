@@ -1,9 +1,22 @@
+# Logging 설정
+logging:
+  level:
+    root: INFO
+    org.springframework.web: DEBUG  # Spring Web 관련 모든 로그를 DEBUG 수준으로 설정
+    your.package.name: DEBUG  # 특정 패키지에 대한 로그 레벨을 DEBUG로 설정
+    org.hibernate.SQL: DEBUG  # Hibernate SQL 쿼리 로그를 DEBUG 수준으로 설정
+  file:
+    path: /logs/app.log  # 로그 파일 경로 설정 (optional)
+    max-size: 10MB       # 최대 파일 크기 설정
+    max-history: 30      # 로그 파일 보관 기간
+
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
 #    url: jdbc:postgresql://34.64.236.95:5432/meta_db
     #원본 url: jdbc:postgresql://10.52.208.5:5432/meta_db
-    url: jdbc:postgresql://db:5432/meta_db
+    # url: jdbc:postgresql://db:5432/meta_db
+    url: jdbc:postgresql://192.168.240.119:5432/meta_db
 
     username: meta_adm
     password: QweR12#$34
